@@ -10,7 +10,7 @@ def f(s, t, a0, a1, a2, a3, a4, a5, a6):
 	Ns = s[0] # susceptible population
 	Ni = s[1] # infected population
 	Nr = s[2] # recovered population
-	Nss, Nsi, Nsr, Nii, Nir, Nrr = s[3], s[4], s[5], s[6], s[7], s[8]	
+	Nss, Nsi, Nsr, Nii, Nir, Nrr, Nd = s[3], s[4], s[5], s[6], s[7], s[8], s[9]	
 	pi = a0 # recruitment rate
 	u_i = a1 # death rate
 	a = a2 # association rate
@@ -27,21 +27,23 @@ def f(s, t, a0, a1, a2, a3, a4, a5, a6):
 	dNiidt = -((2*u_i+(d/e)+2*y)*Nii) + (b*Nsi) + ((a/e)*(Ni**2))
 	dNirdt = -((u_i+(d/e)+y)*Nir) + ((a/e)*Ni*Nr) + (2*y*Nii)
 	dNrrdt = -((d/e)*Nrr) + ((a/e)*(Nr**2)) + (y*Nir)
-	return [dNsdt, dNidt, dNrdt, dNssdt, dNsidt, dNsrdt, dNiidt, dNirdt, dNrrdt]
+	dNddt = (u_i*Nir) + (u_i*Nsi) + (2*u_i*Nii) + (u_i*Ni)
+	return [dNsdt, dNidt, dNrdt, dNssdt, dNsidt, dNsrdt, dNiidt, dNirdt, dNrrdt, dNddt]
 
 # Solver
 t = np.linspace(1,1000, num=500)
-s0 = [100, 10, 0, 0, 0, 0, 0, 0, 0]
+s0 = [100, 10, 0, 0, 0, 0, 0, 0, 0, 0]
 args = (2, 0.01, 1, 0.5, 1, 1, 0.05)
 s = odeint(f, s0, t, args)
-Ns, Ni, Nr, Nss, Nsi, Nsr, Nii, Nir, Nrr = s[:,0], s[:,1], s[:,2], s[:,3], s[:,4], s[:,5], s[:,6], s[:,7], s[:,8]
+Ns, Ni, Nr, Nss, Nsi, Nsr, Nii, Nir, Nrr, Nd = s[:,0], s[:,1], s[:,2], s[:,3], s[:,4], s[:,5], s[:,6], s[:,7], s[:,8], s[:,9]
 
 # Initial plot
 plot_axes = plt.axes([0.1, 0.19, 0.8, 0.68])
 plt.axes(plot_axes)
 susceptible, = plt.plot(np.log(t), Ns+Nsi+Nsr+2*Nss, 'b-', linewidth=2.0, label='Susceptible')
-infected, = plt.plot(np.log(t), Ni+Nsi+Nir+2*Nii, 'r-', linewidth=2.0, label='Infected')
+infected, = plt.plot(np.log(t), Ni+Nsi+Nir+2*Nii, 'y-', linewidth=2.0, label='Infected')
 recovered, = plt.plot(np.log(t), Nr+Nsr+Nir+2*Nrr, 'g-', linewidth=2.0, label='Recovered')
+dead, = plt.plot(np.log(t), Nd, 'r-', linewidth=2.0,label='Dead')
 plt.xlabel('ln(t)')
 plt.ylabel('Ns(t), Ni(t), Nr(t)')
 plt.ylim(0, 250)
@@ -71,10 +73,11 @@ def update(val):
 	s0[1] = initial_inf.val
 	args =(recruitment_rate.val, death_rate.val, association_rate.val, transmission_rate.val, dissociation_rate.val, 1, recover_rate.val)	
 	s = odeint(f, s0, t, args)
-	Ns, Ni, Nr, Nss, Nsi, Nsr, Nii, Nir, Nrr = s[:,0], s[:,1], s[:,2], s[:,3], s[:,4], s[:,5], s[:,6], s[:,7], s[:,8]
+	Ns, Ni, Nr, Nss, Nsi, Nsr, Nii, Nir, Nrr, Nd = s[:,0], s[:,1], s[:,2], s[:,3], s[:,4], s[:,5], s[:,6], s[:,7], s[:,8], s[:,9]
 	susceptible.set_ydata(Ns+Nsi+Nsr+2*Nss)
 	infected.set_ydata(Ni+Nsi+Nir+2*Nii)
 	recovered.set_ydata(Nr+Nsr+Nir+2*Nrr)
+	dead.set_ydata(Nd)
 
 # Set trigger action
 initial_sus.on_changed(update)
