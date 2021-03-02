@@ -20,11 +20,11 @@ def f(s, t, a0, a1, a2, a3, a4, a5, a6):
 	y = a6 # recovery rate
 	dNsdt = pi - (2*(a/e)*(Ns**2)) - ((a/e)*Ns*Ni) - ((a/e)*Ns*Nr) + (2*(d/e)*Nss) + (u_i+(d/e))*Nsi + ((d/e)*Nsr)
 	dNidt = -((u_i+y)*Ni) - (2*(a/e)*(Ni**2)) - ((a/e)*Ns*Ni) - ((a/e)*Ni*Nr) + ((d/e)*Nir) + 2*(u_i+(d/e))*Nii + ((d/e)*Nsi)
-	dNrdt = -(2*(a/e)*(Nr**2)) - ((a/e)*Ni*Nr) - ((a/e)*Ns*Nr) + (y*Ni) + ((d/e)*Nsr) + (u_i+(d/e)*Nir) + (2*(d/e)*Nrr)
+	dNrdt = -(2*(a/e)*(Nr**2)) - ((a/e)*Ni*Nr) - ((a/e)*Ns*Nr) + (y*Ni) + ((d/e)*Nsr) + ((u_i+(d/e))*Nir) + (2*(d/e)*Nrr)
 	dNssdt = -((d/e)*Nss) + (a/e)*(Ns**2)
-	dNsidt = -(u_i+(d/e)+b+y)*Nsi + ((a/e)*Ns*Ni)
+	dNsidt = -((u_i+(d/e)+b+y)*Nsi) + ((a/e)*Ns*Ni)
 	dNsrdt = -((d/e)*Nsr) + ((a/e)*Ns*Nr) + (y*Nsi)
-	dNiidt = -(2*u_i+(d/e)+2*y)*Nii + (b*Nsi) + ((a/e)*(Ni**2))
+	dNiidt = -((2*u_i+(d/e)+2*y)*Nii) + (b*Nsi) + ((a/e)*(Ni**2))
 	dNirdt = -((u_i+(d/e)+y)*Nir) + ((a/e)*Ni*Nr) + (2*y*Nii)
 	dNrrdt = -((d/e)*Nrr) + ((a/e)*(Nr**2)) + (y*Nir)
 	return [dNsdt, dNidt, dNrdt, dNssdt, dNsidt, dNsrdt, dNiidt, dNirdt, dNrrdt]
@@ -75,7 +75,6 @@ def update(val):
 	susceptible.set_ydata(Ns+Nsi+Nsr+2*Nss)
 	infected.set_ydata(Ni+Nsi+Nir+2*Nii)
 	recovered.set_ydata(Nr+Nsr+Nir+2*Nrr)
-	fig.canvas.draw_idle()
 
 # Set trigger action
 initial_sus.on_changed(update)
